@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>舵机控制面板 - Servo Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="top-bar">
+        <div class="logo">
+            <span class="logo-icon">⚙</span>
+            <h1>舵机控制面板</h1>
+        </div>
+        <div class="connection-bar">
+            <div class="conn-group">
+                <label>波特率</label>
+                <select id="baud-select">
+                    <option value="115200" selected>115200</option>
+                    <option value="9600">9600</option>
+                </select>
+            </div>
+            <button id="btn-connect" class="btn btn-primary">🔌 选择串口并连接</button>
+            <button id="btn-disconnect" class="btn btn-danger" disabled>断开</button>
+            <div id="conn-status" class="status-dot disconnected" title="未连接"></div>
+        </div>
+    </header>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        <!-- 操作工具栏 -->
+        <section class="toolbar">
+            <button id="btn-scan" class="btn btn-accent" disabled>🔍 扫描舵机</button>
+            <button id="btn-unload-all" class="btn btn-warning" disabled>🔓 全部卸载</button>
+            <div class="toolbar-right">
+                <div class="conn-group">
+                    <label>动作组号</label>
+                    <input type="number" id="action-group-id" value="0" min="0" max="255" class="input-sm">
+                </div>
+                <button id="btn-ag-run" class="btn btn-sm" disabled>▶ 运行</button>
+                <button id="btn-ag-stop" class="btn btn-sm btn-danger" disabled>■ 停止</button>
+                <div class="conn-group">
+                    <label>速度%</label>
+                    <input type="number" id="action-group-speed" value="100" min="10" max="500" class="input-sm">
+                </div>
+                <button id="btn-ag-speed" class="btn btn-sm" disabled>⚡</button>
+            </div>
+        </section>
+
+        <!-- 信息面板 -->
+        <section id="info-panel" class="info-panel hidden">
+            <div class="info-card">
+                <span class="info-label">连接方式</span>
+                <span id="info-port" class="info-value">Web Serial</span>
+            </div>
+            <div class="info-card">
+                <span class="info-label">波特率</span>
+                <span id="info-baud" class="info-value">-</span>
+            </div>
+            <div class="info-card">
+                <span class="info-label">舵机数</span>
+                <span id="info-servo-count" class="info-value">0</span>
+            </div>
+            <div class="info-card">
+                <span class="info-label">数据刷新</span>
+                <span id="info-poll-status" class="info-value">停止</span>
+            </div>
+        </section>
+
+        <!-- 舵机卡片容器 -->
+        <section id="servo-cards" class="servo-cards">
+            <div class="empty-state" id="empty-state">
+                <div class="empty-icon">🤖</div>
+                <h2>未发现舵机</h2>
+                <p>请先点击"选择串口并连接"，然后点击"扫描舵机"</p>
+            </div>
+        </section>
+
+        <!-- 修改 ID 弹窗 -->
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <div class="modal">
+                <h3>修改舵机 ID</h3>
+                <p class="modal-warn">⚠ 请确保总线上仅连接一个舵机！</p>
+                <div class="modal-body">
+                    <label>当前 ID: <strong id="modal-current-id">-</strong></label>
+                    <label>新 ID:</label>
+                    <input type="number" id="modal-new-id" min="0" max="253" value="1" class="input-md">
+                </div>
+                <div class="modal-actions">
+                    <button id="btn-modal-cancel" class="btn">取消</button>
+                    <button id="btn-modal-confirm" class="btn btn-primary">确认修改</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 帮助文档 -->
+        <section class="help-section">
+            <h2 class="help-toggle" onclick="this.parentElement.classList.toggle('open')">
+                📖 使用说明与技术文档 <span class="help-arrow">▼</span>
+            </h2>
+            <div class="help-content">
+                <div class="help-grid">
+                    <div class="help-card">
+                        <h3>🚀 快速开始</h3>
+                        <ol>
+                            <li>选择波特率 (<strong>115200</strong> 用于 LX 直连协议)</li>
+                            <li>点击 "🔌 选择串口并连接" → 浏览器弹出串口选择对话框</li>
+                            <li>选择 USB 串口设备 (如 CH343)</li>
+                            <li>连接成功后点击 "🔍 扫描舵机"</li>
+                            <li>在舵机卡片中拖动滑块控制位置</li>
+                        </ol>
+                    </div>
+
+                    <div class="help-card help-warn">
+                        <h3>⚠️ 安全注意事项</h3>
+                        <ul>
+                            <li><strong>电压:</strong> 工作电压 6~8.4V，建议 7.4V (2S 锂电)，切勿超压</li>
+                            <li><strong>修改 ID:</strong> 总线上必须<strong>仅连接一个舵机</strong></li>
+                            <li><strong>接线:</strong> 先接信号线，再通电。断电后再拔线</li>
+                            <li><strong>温度:</strong> 长时间高负载运行时注意散热，超过 60°C 应休息</li>
+                        </ul>
+                    </div>
+
+                    <div class="help-card">
+                        <h3>📡 通信协议 (LX 直连)</h3>
+                        <table class="help-table">
+                            <tr>
+                                <th>指令</th>
+                                <th>CMD</th>
+                                <th>说明</th>
+                            </tr>
+                            <tr>
+                                <td>移动</td>
+                                <td>1</td>
+                                <td>位置 0~1000, 时间 0~30000ms</td>
+                            </tr>
+                            <tr>
+                                <td>写 ID</td>
+                                <td>13</td>
+                                <td>修改舵机 ID (0~253)</td>
+                            </tr>
+                            <tr>
+                                <td>读 ID</td>
+                                <td>14</td>
+                                <td>广播地址 254 可读</td>
+                            </tr>
+                            <tr>
+                                <td>读温度</td>
+                                <td>26</td>
+                                <td>返回 °C</td>
+                            </tr>
+                            <tr>
+                                <td>读电压</td>
+                                <td>27</td>
+                                <td>返回 mV</td>
+                            </tr>
+                            <tr>
+                                <td>读位置</td>
+                                <td>28</td>
+                                <td>返回 0~1000</td>
+                            </tr>
+                        </table>
+                        <p style="margin-top:8px;font-size:12px;color:var(--text-muted)">
+                            帧格式: <code>0x55 0x55 ID LEN CMD [PARAMS] CHECKSUM</code>
+                        </p>
+                    </div>
+
+                    <div class="help-card">
+                        <h3>🧪 测试案例</h3>
+                        <ul>
+                            <li><strong>连接测试:</strong> 扫描后应显示位置/电压/温度</li>
+                            <li><strong>移动测试:</strong> 滑块拖到 200→800→500，观察舵机转动</li>
+                            <li><strong>卸载测试:</strong> 点击 🔓 后可手动旋转舵机轴</li>
+                            <li><strong>图表测试:</strong> 实时曲线应持续更新约 2Hz</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="help-footer">
+                    <p>浏览器要求: <strong>Chrome 89+</strong> / <strong>Edge 89+</strong> |
+                        协议: LX Serial (115200 baud) |
+                        <a href="https://github.com" target="_blank">GitHub 仓库</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast 通知 -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

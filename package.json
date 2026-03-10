@@ -1,0 +1,21 @@
+{
+  "name": "servo-dashboard",
+  "version": "1.0.0",
+  "description": "LOBOT 总线舵机 Web 控制面板 - 基于 Web Serial API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "servo",
+    "lobot",
+    "web-serial",
+    "robotics",
+    "dashboard"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
