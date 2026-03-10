@@ -19,7 +19,7 @@
 | ✏️ **修改 ID** | 在线修改舵机 ID (0~253) |
 | 🔓 **卸载舵机** | 单个或全部卸载（释放扭力） |
 | ▶️ **动作组** | 运行/停止/调速控制器板预置动作组 |
-| 🌐 **多用户** | 纯浏览器端架构，服务端仅提供静态页面 |
+| 🌐 **零依赖** | 纯浏览器端架构，无需后端服务器 |
 
 ---
 
@@ -27,26 +27,15 @@
 
 ### 1. 环境要求
 
-- **Node.js** 16+ (仅用于启动静态文件服务器)
 - **Chrome 89+** 或 **Edge 89+** (Web Serial API 支持)
 - **USB 转串口线** (如 CH343)
 - **LOBOT 总线舵机** (如 LX-16A, LX-15D 等)
 
-### 2. 安装与运行
+### 2. 使用方式
 
-```bash
-# 克隆仓库
-git clone https://github.com/RobotBase/WebSerial-ServoTest.git
-cd WebSerial-ServoTest
+**在线使用**：直接访问 Vercel 部署地址（见下方 [☁️ Vercel 部署](#%EF%B8%8F-vercel-部署)）
 
-# 安装依赖
-npm install
-
-# 启动服务
-npm start
-```
-
-打开 Chrome 浏览器访问 **http://localhost:8000**
+**本地使用**：用浏览器直接打开 `index.html` 即可（需要通过本地 HTTP 服务器访问以支持 Web Serial API）
 
 ### 3. 使用流程
 
@@ -132,13 +121,10 @@ npm start
 
 ```
 WebSerial-ServoTest/
-├── server.js          # Node.js 静态文件服务器
-├── package.json       # 项目配置
+├── index.html         # 主页面
+├── style.css          # 样式 (暗色主题)
+├── app.js             # 全部前端逻辑 + 串口协议实现
 ├── vercel.json        # Vercel 部署配置
-├── web/
-│   ├── index.html     # 主页面
-│   ├── style.css      # 样式 (暗色主题)
-│   └── app.js         # 全部前端逻辑 + 串口协议实现
 ├── docs/              # 硬件文档 (PDF)
 │   └── servo_test.py  # Python CLI 测试工具 (可选)
 └── README.md
