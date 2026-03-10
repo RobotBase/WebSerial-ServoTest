@@ -36,8 +36,8 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your-repo/servo-dashboard.git
-cd servo-dashboard
+git clone https://github.com/RobotBase/WebSerial-ServoTest.git
+cd WebSerial-ServoTest
 
 # 安装依赖
 npm install
@@ -131,15 +131,16 @@ npm start
 ## 🛠️ 项目结构
 
 ```
-servo-dashboard/
+WebSerial-ServoTest/
 ├── server.js          # Node.js 静态文件服务器
 ├── package.json       # 项目配置
+├── vercel.json        # Vercel 部署配置
 ├── web/
 │   ├── index.html     # 主页面
 │   ├── style.css      # 样式 (暗色主题)
 │   └── app.js         # 全部前端逻辑 + 串口协议实现
-├── servo_test.py      # Python CLI 测试工具 (可选)
 ├── docs/              # 硬件文档 (PDF)
+│   └── servo_test.py  # Python CLI 测试工具 (可选)
 └── README.md
 ```
 
@@ -223,6 +224,17 @@ python servo_test.py --test-all-apis --baud 9600
 | Safari | - | ❌ 不支持 |
 
 > 如果 Chrome 中未生效，请访问 `chrome://flags/#enable-experimental-web-platform-features` 并启用。
+
+---
+
+## ☁️ Vercel 部署
+
+本项目可一键部署到 Vercel，项目已包含 `vercel.json` 配置文件：
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FRobotBase%2FWebSerial-ServoTest)
+
+> [!NOTE]
+> Web Serial API 需要 **HTTPS** 环境（Vercel 默认提供），但仍需使用 Chrome / Edge 浏览器打开。
 
 ---
 
